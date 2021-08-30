@@ -4,7 +4,7 @@ import { makeLogger } from "ts-loader/dist/logger";
 
 const Scrollbar = React.memo((props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollBarRef = useRef<HTMLDivElement>(null);
 
@@ -20,17 +20,14 @@ const Scrollbar = React.memo((props) => {
 
     const viewableRatio = clientHeight / scrollHeight;
     setScrollbarThumbHeight(viewableRatio * clientHeight);
-    scrollRef.current.style.height = `${scrollbarThumbHeight}px`;
+    console.log('HEIGHT', scrollbarThumbHeight);
+    thumbRef.current.style.height = `${scrollbarThumbHeight}px`;
 
     contentRef.current.addEventListener("scroll", handleScrollContent, true);
     return () => {
       contentRef.current.removeEventListener("scroll", handleScrollContent, true);
     };
   }, [contentRef.current]);
-
-  useEffect(() => {
-    //scrollRef.current.style.top = `${currentPositionFromTop}px`;
-  }, [currentPositionFromTop]);
 
   const handleScrollContent = (e: any) => {
     const { scrollHeight, scrollTop, offsetHeight } = contentRef.current;
@@ -43,7 +40,7 @@ const Scrollbar = React.memo((props) => {
   const handleThumbMouseDown = useCallback((e) => {
     setCurrentPosition(e.clientY);
     //console.log(e.clientY);
-    console.log("MOUSE DOWN", e);
+    //console.log("MOUSE DOWN", e);
     setIsDragging(true);
   }, []);
 
@@ -56,6 +53,7 @@ const Scrollbar = React.memo((props) => {
 
         const step = e.clientY - currentPosition;
         //const percent = step * (scrollHeight / offsetHeight);
+        console.log('MOUSE MOVE THIMB HEIGHT', scrollbarThumbHeight);
         setCurrentPositionFromTop(Math.min(Math.max(0,currentPositionFromTop + step), offsetHeight - scrollbarThumbHeight));
 
         setCurrentPosition(e.clientY);
@@ -67,23 +65,41 @@ const Scrollbar = React.memo((props) => {
         contentRef.current.scrollTop += ((scrollHeight / offsetHeight) * step);
       }
     },
-    [isDragging, currentPosition, currentPositionFromTop]
+    [isDragging, currentPosition, scrollbarThumbHeight, currentPositionFromTop]
   );
 
   const handleMouseUp = useCallback(
     (e) => {
       setIsDragging(false);
-      console.log("MOUSE UP");
+      //console.log("MOUSE UP");
     },
     [isDragging]
   );
 
   const handleMouseLeave = useCallback(
     (e) => {
-      console.log("MOUSE LEAVE");
+      //console.log("MOUSE LEAVE");
     },
     [isDragging]
   );
+
+  const handleMouseDownScrollBar = useCallback((e: any) => {
+    console.log('MOUSE DOWN THUMB HEIGHT', scrollbarThumbHeight);
+    //console.log('MOUSE DOWN', e.offsetY, scrollbarThumbHeight );
+    const { scrollHeight, scrollTop, offsetHeight } = contentRef.current;
+    //setCurrentPosition(e.clientY);
+    contentRef.current.scrollTop = e.offsetY < scrollbarThumbHeight
+      ? (e.offsetY * scrollHeight) / offsetHeight
+      : (e.offsetY * scrollHeight) / offsetHeight - (scrollbarThumbHeight / 2);
+    console.log(currentPosition);
+  }, [currentPosition]);
+
+  const handleClickScrollBar = (e: React.MouseEvent<HTMLDivElement>) => {
+    //console.log('CLICK', scrollbarThumbHeight);
+  }
+
+  // useEffect(() => {
+  //   console.log('CHE BUDET', scrollbarThumbHeight);},[scrollbarThumbHeight])
 
   useEffect(() => {
     document.addEventListener("mousemove", handleMouseMove);
@@ -97,6 +113,11 @@ const Scrollbar = React.memo((props) => {
     };
   }, [handleMouseMove, handleMouseUp]);
 
+  useEffect(() => {
+    scrollBarRef.current.addEventListener('mousedown', (e: any) => handleMouseDownScrollBar(e));
+    scrollBarRef.current.addEventListener('click', (e: any) => handleClickScrollBar(e));
+  }, [scrollBarRef])
+
   const testFunc = () => {
     contentRef.current.scrollTop = 50;
   }
@@ -106,10 +127,13 @@ const Scrollbar = React.memo((props) => {
       <div className="content" ref={contentRef}>
         {props.children}
       </div>
-      <div className="scrollbar">
+      <div
+        className="scrollbar"
+        ref={scrollBarRef}
+      >
         <div
           className="scrollbar-thumb"
-          ref={scrollRef}
+          ref={thumbRef}
           onMouseDown={handleThumbMouseDown}
           style={{ top: currentPositionFromTop}}
         />
