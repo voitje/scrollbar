@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./Scrollbar.scss";
-import { makeLogger } from "ts-loader/dist/logger";
 
 const Scrollbar = React.memo((props) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,6 +37,8 @@ const Scrollbar = React.memo((props) => {
   };
 
   const handleThumbMouseDown = useCallback((e) => {
+    e.stopPropagation();
+    console.log('handleThumbMouseDown');
     setCurrentPosition(e.clientY);
     //console.log(e.clientY);
     //console.log("MOUSE DOWN", e);
@@ -84,18 +85,19 @@ const Scrollbar = React.memo((props) => {
   );
 
   const handleMouseDownScrollBar = useCallback((e: any) => {
-    console.log('MOUSE DOWN THUMB HEIGHT', scrollbarThumbHeight);
+    console.log('handleMouseDownScrollBar');
     //console.log('MOUSE DOWN', e.offsetY, scrollbarThumbHeight );
     const { scrollHeight, scrollTop, offsetHeight } = contentRef.current;
     //setCurrentPosition(e.clientY);
+    //console.log(e.offsetY < scrollbarThumbHeight);
     contentRef.current.scrollTop = e.offsetY < scrollbarThumbHeight
       ? (e.offsetY * scrollHeight) / offsetHeight
       : (e.offsetY * scrollHeight) / offsetHeight - (scrollbarThumbHeight / 2);
-    console.log(currentPosition);
-  }, [currentPosition]);
+    //console.log(currentPosition);
+  }, [currentPosition, scrollbarThumbHeight]);
 
   const handleClickScrollBar = (e: React.MouseEvent<HTMLDivElement>) => {
-    //console.log('CLICK', scrollbarThumbHeight);
+    console.log('CLICK', scrollbarThumbHeight);
   }
 
   // useEffect(() => {
@@ -114,9 +116,20 @@ const Scrollbar = React.memo((props) => {
   }, [handleMouseMove, handleMouseUp]);
 
   useEffect(() => {
-    scrollBarRef.current.addEventListener('mousedown', (e: any) => handleMouseDownScrollBar(e));
-    scrollBarRef.current.addEventListener('click', (e: any) => handleClickScrollBar(e));
-  }, [scrollBarRef])
+    scrollBarRef.current.addEventListener('mousedown',  handleMouseDownScrollBar);
+    scrollBarRef.current.addEventListener('click', () => handleClickScrollBar);
+    return () => {
+      scrollBarRef.current.removeEventListener('mousedown', handleMouseDownScrollBar);
+      scrollBarRef.current.removeEventListener('click', () => handleClickScrollBar)
+    }
+  }, [scrollBarRef, scrollbarThumbHeight])
+
+  useEffect(() => {
+    thumbRef.current.addEventListener('mousedown', handleThumbMouseDown);
+    return () => {
+      thumbRef.current.removeEventListener('mousedown', handleThumbMouseDown)
+    }
+  }, [thumbRef])
 
   const testFunc = () => {
     contentRef.current.scrollTop = 50;
@@ -134,7 +147,6 @@ const Scrollbar = React.memo((props) => {
         <div
           className="scrollbar-thumb"
           ref={thumbRef}
-          onMouseDown={handleThumbMouseDown}
           style={{ top: currentPositionFromTop}}
         />
       </div>

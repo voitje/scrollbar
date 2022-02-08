@@ -8,6 +8,7 @@
 }
 
 .content {
+  margin-left: 25px;
   overflow-y: auto;
   height: 100%;
   //scrollbar-width: none;
@@ -16,7 +17,7 @@
 
 .scrollbar {
   width: 10px;
-  background: aqua;
+  background: transparent;
   left: 0;
   top: 0;
   position: absolute;
@@ -27,7 +28,8 @@
     width: 10px;
     right: 0;
     position: absolute;
-    background: deeppink;
+    background: rgba(68, 92, 121, 0.43);
+    border-radius: 8px;
   }
 }
 

@@ -3,25 +3,32 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: auto;
 }
 
 body {
-  background: black;
-  color: white;
+  background: white;
+  color: black;
 }
 
 .app {
   height: 100%;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  //display: flex;
+  //flex-direction: column;
+  //justify-content: center;
+  //align-items: center;
+  overflow: auto;
 }
 .first-container {
   margin-right: 10px;
   border: 2px solid red;
   width: 300px;
-  height: 300px;
+  //height: 100%;
   overflow: hidden;
+  margin-top: 20px;
 }
 
+.newBytAnton {
+  display: flex;
+}

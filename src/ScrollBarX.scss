@@ -1,0 +1,34 @@
+.containerX {
+  //position: relative;
+  height: 100%;
+}
+
+.contentX::-webkit-scrollbar {
+  //display: none;
+}
+
+.contentX {
+  overflow-y: auto;
+  height: 100%;
+  //scrollbar-width: none;
+  //-ms-overflow-style: none;
+}
+
+.scrollbarX {
+  height: 10px;
+  background: blue;
+  left: 0;
+  bottom: 30px;
+  position: fixed;
+  //width: 100%;
+
+  &-thumb{
+    height: 10px;
+    width: 30px;
+    position: absolute;
+    //background: rgba(68, 92, 121, 0.43);
+    background: red;
+    border-radius: 8px;
+  }
+}
+
